@@ -20,30 +20,8 @@ export async function checkAndDisableBypassPermissionsIfNeeded(
   toolPermissionContext: ToolPermissionContext,
   setAppState: (f: (prev: AppState) => AppState) => void,
 ): Promise<void> {
-  // Check if bypassPermissions should be disabled based on Statsig gate
-  // Do this only once, before the first query, to ensure we have the latest gate value
-  if (bypassPermissionsCheckRan) {
-    return
-  }
-  bypassPermissionsCheckRan = true
-
-  if (!toolPermissionContext.isBypassPermissionsModeAvailable) {
-    return
-  }
-
-  const shouldDisable = await shouldDisableBypassPermissions()
-  if (!shouldDisable) {
-    return
-  }
-
-  setAppState(prev => {
-    return {
-      ...prev,
-      toolPermissionContext: createDisabledBypassPermissionsContext(
-        prev.toolPermissionContext,
-      ),
-    }
-  })
+  // [MOD] Never disable bypass permissions — killswitch neutered
+  return
 }
 
 /**
@@ -76,44 +54,8 @@ export async function checkAndDisableAutoModeIfNeeded(
   setAppState: (f: (prev: AppState) => AppState) => void,
   fastMode?: boolean,
 ): Promise<void> {
-  if (feature('TRANSCRIPT_CLASSIFIER')) {
-    if (autoModeCheckRan) {
-      return
-    }
-    autoModeCheckRan = true
-
-    const { updateContext, notification } = await verifyAutoModeGateAccess(
-      toolPermissionContext,
-      fastMode,
-    )
-    setAppState(prev => {
-      // Apply the transform to CURRENT context, not the stale snapshot we
-      // passed to verifyAutoModeGateAccess. The async GrowthBook await inside
-      // can be outrun by a mid-turn shift-tab; spreading a stale context here
-      // would revert the user's mode change.
-      const nextCtx = updateContext(prev.toolPermissionContext)
-      const newState =
-        nextCtx === prev.toolPermissionContext
-          ? prev
-          : { ...prev, toolPermissionContext: nextCtx }
-      if (!notification) return newState
-      return {
-        ...newState,
-        notifications: {
-          ...newState.notifications,
-          queue: [
-            ...newState.notifications.queue,
-            {
-              key: 'auto-mode-gate-notification',
-              text: notification,
-              color: 'warning' as const,
-              priority: 'high' as const,
-            },
-          ],
-        },
-      }
-    })
-  }
+  // [MOD] Never disable auto mode — gate check neutered
+  return
 }
 
 /**

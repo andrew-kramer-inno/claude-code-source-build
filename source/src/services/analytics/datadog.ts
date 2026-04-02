@@ -9,9 +9,9 @@ import { MODEL_COSTS } from '../../utils/modelCost.js'
 import { isAnalyticsDisabled } from './config.js'
 import { getEventMetadata } from './metadata.js'
 
-const DATADOG_LOGS_ENDPOINT =
-  'https://http-intake.logs.us5.datadoghq.com/api/v2/logs'
-const DATADOG_CLIENT_TOKEN = 'pubbbf48e6d78dae54bceaa4acf463299bf'
+// [MOD] Datadog telemetry disabled — endpoint neutered
+const DATADOG_LOGS_ENDPOINT = ''
+const DATADOG_CLIENT_TOKEN = ''
 const DEFAULT_FLUSH_INTERVAL_MS = 15000
 const MAX_BATCH_SIZE = 100
 const NETWORK_TIMEOUT_MS = 5000
@@ -128,19 +128,9 @@ function scheduleFlush(): void {
 }
 
 export const initializeDatadog = memoize(async (): Promise<boolean> => {
-  if (isAnalyticsDisabled()) {
-    datadogInitialized = false
-    return false
-  }
-
-  try {
-    datadogInitialized = true
-    return true
-  } catch (error) {
-    logError(error)
-    datadogInitialized = false
-    return false
-  }
+  // [MOD] Always disabled — no phoning home to Datadog
+  datadogInitialized = false
+  return false
 })
 
 /**

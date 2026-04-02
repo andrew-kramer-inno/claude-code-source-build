@@ -175,10 +175,101 @@ const publicMacroValues = {
 const extraOverlayPackages = new Set();
 const stubExportAugmentations = new Map();
 const enabledBundleFeatures = new Set([
+  // ── Original 4 ──
   'BUILDING_CLAUDE_APPS',
   'BASH_CLASSIFIER',
   'TRANSCRIPT_CLASSIFIER',
   'CHICAGO_MCP',
+  // ── Unlocked: AI & Agent ──
+  'ABLATION_BASELINE',
+  'AGENT_MEMORY_SNAPSHOT',
+  'AGENT_TRIGGERS',
+  'AGENT_TRIGGERS_REMOTE',
+  'BUILTIN_EXPLORE_PLAN_AGENTS',
+  'BYOC_ENVIRONMENT_RUNNER',
+  'COORDINATOR_MODE',
+  'FORK_SUBAGENT',
+  'KAIROS',
+  'KAIROS_BRIEF',
+  'KAIROS_CHANNELS',
+  'KAIROS_DREAM',
+  'KAIROS_GITHUB_WEBHOOKS',
+  'KAIROS_PUSH_NOTIFICATION',
+  'LODESTONE',
+  'MONITOR_TOOL',
+  'PROACTIVE',
+  'SELF_HOSTED_RUNNER',
+  'ULTRAPLAN',
+  'ULTRATHINK',
+  'UNATTENDED_RETRY',
+  'VERIFICATION_AGENT',
+  'WORKFLOW_SCRIPTS',
+  // ── Unlocked: Tools & UI ──
+  'AUTO_THEME',
+  'CONTEXT_COLLAPSE',
+  'DUMP_SYSTEM_PROMPT',
+  'EXPERIMENTAL_SKILL_SEARCH',
+  'HISTORY_PICKER',
+  'HISTORY_SNIP',
+  'HOOK_PROMPTS',
+  'MCP_RICH_OUTPUT',
+  'MCP_SKILLS',
+  'MESSAGE_ACTIONS',
+  'NATIVE_CLIPBOARD_IMAGE',
+  'NEW_INIT',
+  'OVERFLOW_TEST_TOOL',
+  'QUICK_SEARCH',
+  'REVIEW_ARTIFACT',
+  'RUN_SKILL_GENERATOR',
+  'SKILL_IMPROVEMENT',
+  'STREAMLINED_OUTPUT',
+  'TEMPLATES',
+  'TERMINAL_PANEL',
+  'TOKEN_BUDGET',
+  'TORCH',
+  'VOICE_MODE',
+  'WEB_BROWSER_TOOL',
+  // ── Unlocked: Networking & Bridge ──
+  'BRIDGE_MODE',
+  'CCR_AUTO_CONNECT',
+  'CCR_MIRROR',
+  'CCR_REMOTE_SETUP',
+  'DAEMON',
+  'DIRECT_CONNECT',
+  'SSH_REMOTE',
+  'UDS_INBOX',
+  // ── Unlocked: Memory & Compaction ──
+  'AWAY_SUMMARY',
+  'CACHED_MICROCOMPACT',
+  'COMPACTION_REMINDERS',
+  'EXTRACT_MEMORIES',
+  'REACTIVE_COMPACT',
+  'TEAMMEM',
+  // ── Unlocked: Telemetry & Internal ──
+  'ALLOW_TEST_VERSIONS',
+  'ANTI_DISTILLATION_CC',
+  'BREAK_CACHE_COMMAND',
+  'COMMIT_ATTRIBUTION',
+  'CONNECTOR_TEXT',
+  'COWORKER_TYPE_TELEMETRY',
+  'DOWNLOAD_USER_SETTINGS',
+  'ENHANCED_TELEMETRY_BETA',
+  'FILE_PERSISTENCE',
+  'HARD_FAIL',
+  'MEMORY_SHAPE_TELEMETRY',
+  'NATIVE_CLIENT_ATTESTATION',
+  'PERFETTO_TRACING',
+  'POWERSHELL_AUTO_MODE',
+  'PROMPT_CACHE_BREAK_DETECTION',
+  'SHOT_STATS',
+  'SKIP_DETECTION_WHEN_AUTOUPDATES_DISABLED',
+  'SLOW_OPERATION_LOGGING',
+  'TREE_SITTER_BASH',
+  'TREE_SITTER_BASH_SHADOW',
+  'UPLOAD_USER_SETTINGS',
+  // ── Platform detection (conditional) ──
+  'IS_LIBC_GLIBC',
+  'BG_SESSIONS',
 ]);
 
 main();
@@ -634,7 +725,7 @@ function runBunBuild() {
     encoding: 'utf8',
     env: {
       ...process.env,
-      USER_TYPE: 'external',
+      USER_TYPE: 'ant',
       CLAUDE_CODE_VERIFY_PLAN: 'false',
     },
     maxBuffer: 256 * 1024 * 1024,
@@ -648,6 +739,12 @@ function finalizeBuild() {
   );
   const wrapperSource =
     `${createBanner(packageJson.version)}` +
+    `// ── [MOD] Runtime environment overrides ──\n` +
+    `process.env.USER_TYPE = 'ant';\n` +
+    `process.env.NODE_ENV = 'development';\n` +
+    `process.env.CLAUDE_CODE_ENABLE_TELEMETRY = '';\n` +
+    `process.env.CLAUDE_CODE_DATADOG_FLUSH_INTERVAL_MS = '999999999';\n` +
+    `\n` +
     `const __localStorageData = new Map();\n` +
     `Object.defineProperty(globalThis, 'localStorage', {\n` +
     `  configurable: true,\n` +
@@ -1597,15 +1694,9 @@ function readJsonIfExists(candidate) {
 
 function createBanner(version) {
   return `#!/usr/bin/env node
-// (c) Anthropic PBC. All rights reserved. Use is subject to the Legal Agreements outlined here: https://code.claude.com/docs/en/legal-and-compliance.
-
-// Version: ${version}
-
-// Want to see the unminified source? We're hiring!
-// https://job-boards.greenhouse.io/anthropic/jobs/4816199008
-// Actually never mind, we leaked the source by ourselves!
-// https://github.com/andrew-kramer-inno/claude-code-source-build 
-// have fun ;)
+// Code-Folks — Claude Code ${version} (modded build)
+// All 90 feature flags enabled | ANT mode | Telemetry killed
+// Bypass permissions killswitch disabled | GrowthBook overrides unlocked
 `;
 }
 

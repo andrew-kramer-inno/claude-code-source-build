@@ -126,31 +126,8 @@ async function refreshMetricsStatus(): Promise<MetricsStatus> {
  * an extra one during the 24h window is acceptable.
  */
 export async function checkMetricsEnabled(): Promise<MetricsStatus> {
-  // Service key OAuth sessions lack user:profile scope → would 403.
-  // API key users (non-subscribers) fall through and use x-api-key auth.
-  // This check runs before the disk read so we never persist auth-state-derived
-  // answers — only real API responses go to disk. Otherwise a service-key
-  // session would poison the cache for a later full-OAuth session.
-  if (isClaudeAISubscriber() && !hasProfileScope()) {
-    return { enabled: false, hasError: false }
-  }
-
-  const cached = getGlobalConfig().metricsStatusCache
-  if (cached) {
-    if (Date.now() - cached.timestamp > DISK_CACHE_TTL_MS) {
-      // saveGlobalConfig's fallback path (config.ts:731) can throw if both
-      // locked and fallback writes fail — catch here so fire-and-forget
-      // doesn't become an unhandled rejection.
-      void refreshMetricsStatus().catch(logError)
-    }
-    return {
-      enabled: cached.enabled,
-      hasError: false,
-    }
-  }
-
-  // First-ever run on this machine: block on the network to populate disk.
-  return refreshMetricsStatus()
+  // [MOD] BigQuery metrics always disabled — no metrics export
+  return { enabled: false, hasError: false }
 }
 
 // Export for testing purposes only

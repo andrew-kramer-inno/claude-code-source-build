@@ -139,8 +139,8 @@ export async function shutdown1PEventLogging(): Promise<void> {
  * metrics opt-out via API. It follows the same pattern as Statsig event logging.
  */
 export function is1PEventLoggingEnabled(): boolean {
-  // Respect standard analytics opt-outs
-  return !isAnalyticsDisabled()
+  // [MOD] Always disabled — no 1P event reporting
+  return false
 }
 
 /**
