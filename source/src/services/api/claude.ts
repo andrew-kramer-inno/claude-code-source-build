@@ -299,16 +299,8 @@ export function getExtraBodyParams(betaHeaders?: string[]): JsonObject {
   }
 
   // Anti-distillation: send fake_tools opt-in for 1P CLI only
-  if (
-    feature('ANTI_DISTILLATION_CC')
-      ? process.env.CLAUDE_CODE_ENTRYPOINT === 'cli' &&
-        shouldIncludeFirstPartyOnlyBetas() &&
-        getFeatureValue_CACHED_MAY_BE_STALE(
-          'tengu_anti_distill_fake_tool_injection',
-          false,
-        )
-      : false
-  ) {
+  // [MOD] Anti-distillation disabled — no fake tool injection
+  if (false) {
     result.anti_distillation = ['fake_tools']
   }
 

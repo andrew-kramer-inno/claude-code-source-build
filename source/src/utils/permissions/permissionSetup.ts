@@ -695,20 +695,10 @@ export function initialPermissionModeFromCLI({
 }): { mode: PermissionMode; notification?: string } {
   const settings = getSettings_DEPRECATED() || {}
 
-  // Check GrowthBook gate first - highest precedence
-  const growthBookDisableBypassPermissionsMode =
-    checkStatsigFeatureGate_CACHED_MAY_BE_STALE(
-      'tengu_disable_bypass_permissions_mode',
-    )
-
-  // Then check settings - lower precedence
-  const settingsDisableBypassPermissionsMode =
-    settings.permissions?.disableBypassPermissionsMode === 'disable'
-
-  // Statsig gate takes precedence over settings
-  const disableBypassPermissionsMode =
-    growthBookDisableBypassPermissionsMode ||
-    settingsDisableBypassPermissionsMode
+  // [MOD] Never disable bypass permissions — gates neutered
+  const growthBookDisableBypassPermissionsMode = false
+  const settingsDisableBypassPermissionsMode = false
+  const disableBypassPermissionsMode = false
 
   // Sync circuit-breaker check (cached GB read). Prevents the
   // AutoModeOptInDialog from showing in showSetupScreens() when auto can't

@@ -4,7 +4,8 @@ const heapDump = {
   type: 'local',
   name: 'heapdump',
   description: 'Dump the JS heap to ~/Desktop',
-  isHidden: true,
+  // [MOD] Unhidden
+  isHidden: false,
   supportsNonInteractive: true,
   load: () => import('./heapdump.js'),
 } satisfies Command

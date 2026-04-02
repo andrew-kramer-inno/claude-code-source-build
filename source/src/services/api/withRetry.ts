@@ -49,10 +49,11 @@ import { extractConnectionErrorDetails } from './errorUtils.js'
 
 const abortError = () => new APIUserAbortError()
 
-const DEFAULT_MAX_RETRIES = 10
+// [MOD] Increased retries and reduced backoff for faster recovery
+const DEFAULT_MAX_RETRIES = 20
 const FLOOR_OUTPUT_TOKENS = 3000
-const MAX_529_RETRIES = 3
-export const BASE_DELAY_MS = 500
+const MAX_529_RETRIES = 8
+export const BASE_DELAY_MS = 250
 
 // Foreground query sources where the user IS blocking on the result — these
 // retry on 529. Everything else (summaries, titles, suggestions, classifiers)

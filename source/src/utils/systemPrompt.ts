@@ -112,12 +112,18 @@ export function buildEffectiveSystemPrompt({
     ])
   }
 
+  // [MOD] Custom system prompt injection from env var
+  const prependPrompt = process.env.CLAUDE_CODE_PREPEND_SYSTEM_PROMPT
+  const appendExtra = process.env.CLAUDE_CODE_APPEND_SYSTEM_PROMPT
+
   return asSystemPrompt([
+    ...(prependPrompt ? [prependPrompt] : []),
     ...(agentSystemPrompt
       ? [agentSystemPrompt]
       : customSystemPrompt
         ? [customSystemPrompt]
         : defaultSystemPrompt),
     ...(appendSystemPrompt ? [appendSystemPrompt] : []),
+    ...(appendExtra ? [appendExtra] : []),
   ])
 }

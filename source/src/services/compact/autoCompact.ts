@@ -59,10 +59,11 @@ export type AutoCompactTrackingState = {
   consecutiveFailures?: number
 }
 
-export const AUTOCOMPACT_BUFFER_TOKENS = 13_000
-export const WARNING_THRESHOLD_BUFFER_TOKENS = 20_000
-export const ERROR_THRESHOLD_BUFFER_TOKENS = 20_000
-export const MANUAL_COMPACT_BUFFER_TOKENS = 3_000
+// [MOD] Reduced buffer to delay compaction — more context before auto-compact triggers
+export const AUTOCOMPACT_BUFFER_TOKENS = 5_000
+export const WARNING_THRESHOLD_BUFFER_TOKENS = 10_000
+export const ERROR_THRESHOLD_BUFFER_TOKENS = 10_000
+export const MANUAL_COMPACT_BUFFER_TOKENS = 1_500
 
 // Stop trying autocompact after this many consecutive failures.
 // BQ 2026-03-10: 1,279 sessions had 50+ consecutive failures (up to 3,272)

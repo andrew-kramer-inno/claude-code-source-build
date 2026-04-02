@@ -28,6 +28,12 @@ import { gte } from 'src/utils/semver.js'
 import { getInitialSettings } from 'src/utils/settings/settings.js'
 
 export async function update() {
+  // [MOD] Skip update check for modded build
+  if (!process.env.CLAUDE_CODE_FORCE_UPDATE_CHECK) {
+    writeToStdout(`Code-Folks modded build v${MACRO.VERSION} — update check skipped\n`)
+    writeToStdout(`Set CLAUDE_CODE_FORCE_UPDATE_CHECK=1 to check anyway\n`)
+    return
+  }
   logEvent('tengu_update_check', {})
   writeToStdout(`Current version: ${MACRO.VERSION}\n`)
 

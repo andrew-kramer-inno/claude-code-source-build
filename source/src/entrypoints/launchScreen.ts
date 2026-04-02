@@ -138,6 +138,15 @@ export async function playLaunchScreen(): Promise<void> {
   const out = process.stdout;
   const write = (s: string) => out.write(s);
 
+  // [MOD] Skip on any keypress
+  let aborted = false;
+  const skipHandler = () => { aborted = true; };
+  if (process.stdin.isTTY) {
+    process.stdin.setRawMode(true);
+    process.stdin.resume();
+    process.stdin.once('data', skipHandler);
+  }
+
   const logoWidth = Math.max(...LOGO.map(l => l.length));
   const titleWidth = TITLE[0].length;
   const totalHeight = LOGO.length + 2 + TITLE.length + 1 + 1 + 2 + 1; // logo + gap + title + gap + subtitle + gap + version
@@ -155,7 +164,7 @@ export async function playLaunchScreen(): Promise<void> {
     // ═══════════════════════════════════════════════════════════
     // PHASE 1: Logo materializes from center outward (1.2s)
     // ═══════════════════════════════════════════════════════════
-    for (let frame = 0; frame < 24; frame++) {
+    for (let frame = 0; frame < 24 && !aborted; frame++) {
       let buf = CLEAR; // clear each frame for clean render
       const t = frame / 23;
 
@@ -208,7 +217,7 @@ export async function playLaunchScreen(): Promise<void> {
     // ═══════════════════════════════════════════════════════════
     // PHASE 2: Title sweeps in + logo shimmers (1.5s)
     // ═══════════════════════════════════════════════════════════
-    for (let frame = 0; frame < 30; frame++) {
+    for (let frame = 0; frame < 30 && !aborted; frame++) {
       let buf = CLEAR;
       const t = frame / 29;
 
@@ -287,7 +296,7 @@ export async function playLaunchScreen(): Promise<void> {
     // PHASE 3: Hold + version appear (0.8s)
     // ═══════════════════════════════════════════════════════════
     const version = `v${MACRO.VERSION}`;
-    for (let frame = 0; frame < 16; frame++) {
+    for (let frame = 0; frame < 16 && !aborted; frame++) {
       let buf = CLEAR;
       const t = frame / 15;
 
@@ -337,7 +346,7 @@ export async function playLaunchScreen(): Promise<void> {
     // ═══════════════════════════════════════════════════════════
     // PHASE 4: Fade out (0.6s)
     // ═══════════════════════════════════════════════════════════
-    for (let frame = 0; frame < 12; frame++) {
+    for (let frame = 0; frame < 12 && !aborted; frame++) {
       let buf = CLEAR;
       const fade = 1 - frame / 11; // 1 → 0
 
@@ -386,6 +395,12 @@ export async function playLaunchScreen(): Promise<void> {
     await sleep(100);
 
   } finally {
+    // [MOD] Clean up stdin listener
+    if (process.stdin.isTTY) {
+      process.stdin.removeListener('data', skipHandler);
+      process.stdin.setRawMode(false);
+      process.stdin.pause();
+    }
     write(CLEAR + SHOW_CURSOR + RESET);
   }
 }

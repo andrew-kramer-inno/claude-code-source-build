@@ -744,6 +744,9 @@ function finalizeBuild() {
     `process.env.NODE_ENV = 'development';\n` +
     `process.env.CLAUDE_CODE_ENABLE_TELEMETRY = '';\n` +
     `process.env.CLAUDE_CODE_DATADOG_FLUSH_INTERVAL_MS = '999999999';\n` +
+    `process.env.CLAUDE_CODE_ALLOW_ALL_MODELS = '1';\n` +
+    `process.env.DISABLE_AUTOUPDATER = '1';\n` +
+    `process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS = '1';\n` +
     `\n` +
     `const __localStorageData = new Map();\n` +
     `Object.defineProperty(globalThis, 'localStorage', {\n` +

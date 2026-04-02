@@ -98,6 +98,10 @@ function familyHasSpecificEntries(
  * 3. Full model IDs ("claude-opus-4-5-20251101") — exact match only
  */
 export function isModelAllowed(model: string): boolean {
+  // [MOD] All models allowed — allowlist bypassed
+  if (process.env.CLAUDE_CODE_ALLOW_ALL_MODELS !== '0') {
+    return true
+  }
   const settings = getSettings_DEPRECATED() || {}
   const { availableModels } = settings
   if (!availableModels) {
