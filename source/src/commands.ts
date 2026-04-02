@@ -136,6 +136,7 @@ import plugin from './commands/plugin/index.js'
 import reloadPlugins from './commands/reload-plugins/index.js'
 import rewind from './commands/rewind/index.js'
 import heapDump from './commands/heapdump/index.js'
+import dumpInfo from './commands/dump-info/index.js'
 import mockLimits from './commands/mock-limits/index.js'
 import bridgeKick from './commands/bridge-kick.js'
 import version from './commands/version.js'
@@ -320,6 +321,7 @@ const COMMANDS = memoize((): Command[] => [
   ...(webCmd ? [webCmd] : []),
   ...(forkCmd ? [forkCmd] : []),
   ...(buddy ? [buddy] : []),
+  dumpInfo,
   ...(proactive ? [proactive] : []),
   ...(briefCommand ? [briefCommand] : []),
   ...(assistantCommand ? [assistantCommand] : []),

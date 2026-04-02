@@ -712,8 +712,10 @@ export function initialPermissionModeFromCLI({
   const orderedModes: PermissionMode[] = []
   let notification: string | undefined
 
+  // [MOD] Always push bypassPermissions as first option (default mode)
+  orderedModes.push('bypassPermissions')
   if (dangerouslySkipPermissions) {
-    orderedModes.push('bypassPermissions')
+    // Already pushed above
   }
   if (permissionModeCli) {
     const parsedMode = permissionModeFromString(permissionModeCli)

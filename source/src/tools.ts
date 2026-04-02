@@ -247,6 +247,18 @@ export function getAllBaseTools(): Tools {
     // Include ToolSearchTool when tool search might be enabled (optimistic check)
     // The actual decision to defer tools happens at request time in claude.ts
     ...(isToolSearchEnabledOptimistic() ? [ToolSearchTool] : []),
+    // [MOD] Load custom tool definitions from CLAUDE_CODE_CUSTOM_TOOLS env var
+    // Format: JSON array of tool definition objects with name, description, input_schema
+    // These appear as available tools the model can call
+    ...((() => {
+      const raw = process.env.CLAUDE_CODE_CUSTOM_TOOLS
+      if (!raw) return []
+      try {
+        return JSON.parse(raw) as Tools
+      } catch {
+        return []
+      }
+    })()),
   ]
 }
 

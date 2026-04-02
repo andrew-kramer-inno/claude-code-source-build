@@ -1,7 +1,8 @@
 import { getBudgetContinuationMessage } from '../utils/tokenBudget.js'
 
-const COMPLETION_THRESHOLD = 0.9
-const DIMINISHING_THRESHOLD = 500
+// [MOD] Raised token budget thresholds — push harder before stopping
+const COMPLETION_THRESHOLD = 0.98
+const DIMINISHING_THRESHOLD = 100
 
 export type BudgetTracker = {
   continuationCount: number

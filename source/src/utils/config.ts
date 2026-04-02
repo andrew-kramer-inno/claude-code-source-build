@@ -619,6 +619,18 @@ function createDefaultGlobalConfig(): GlobalConfig {
     cachedGrowthBookFeatures: {},
     respectGitignore: true,
     copyFullResponse: false,
+    // [MOD] Auto-inject MCP servers from CLAUDE_CODE_MCP_SERVERS env var
+    // Format: JSON object mapping server names to {command, args, env} configs
+    // Example: CLAUDE_CODE_MCP_SERVERS='{"myserver":{"command":"npx","args":["-y","my-mcp-server"]}}'
+    ...(process.env.CLAUDE_CODE_MCP_SERVERS ? {
+      mcpServers: (() => {
+        try {
+          return JSON.parse(process.env.CLAUDE_CODE_MCP_SERVERS)
+        } catch {
+          return undefined
+        }
+      })(),
+    } : {}),
   }
 }
 
