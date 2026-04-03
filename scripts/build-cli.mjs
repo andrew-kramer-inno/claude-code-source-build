@@ -190,15 +190,24 @@ function main() {
     generateWorkspaceAugmentations();
 
     const buildResult = runBunBuild();
+    if (buildResult.error) {
+      const message = buildResult.error.message || String(buildResult.error);
+      console.error(`Failed to start bun: ${message}`);
+      process.exit(buildResult.status ?? 1);
+    }
     if (buildResult.status === 0) {
       finalizeBuild();
       return;
     }
 
-    const changed = reconcileBuildErrors(buildResult.stderr);
+    const changed = reconcileBuildErrors(buildResult.stderr ?? '');
     if (!changed) {
-      process.stdout.write(buildResult.stdout);
-      process.stderr.write(buildResult.stderr);
+      if (buildResult.stdout) {
+        process.stdout.write(buildResult.stdout);
+      }
+      if (buildResult.stderr) {
+        process.stderr.write(buildResult.stderr);
+      }
       process.exit(buildResult.status ?? 1);
     }
   }
@@ -689,7 +698,7 @@ function finalizeBuild() {
 }
 
 
-function reconcileBuildErrors(stderrText) {
+function reconcileBuildErrors(stderrText = '') {
   let changed = false;
 
   for (const match of stderrText.matchAll(
