@@ -4,7 +4,7 @@ const dumpInfo = {
   type: 'local',
   name: 'dump-info',
   description: 'Dump system prompt, API endpoints, feature flags, and internal state',
-  argumentHint: '[prompt | endpoints | flags | config | coordinator]',
+  argumentHint: '[prompt | endpoints | flags | gates | config | coordinator]',
   aliases: ['internals', 'debug-dump'],
   supportsNonInteractive: true,
   load: () => import('./dump-info.js'),

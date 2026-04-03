@@ -511,10 +511,10 @@ export function getAPIMetadata() {
   return {
     user_id: jsonStringify({
       ...extra,
-      device_id: getOrCreateUserID(),
-      // Only include OAuth account UUID when actively using OAuth authentication
+      // [MOD] Stripped PII: device_id, session_id removed
+      device_id: 'redacted',
       account_uuid: getOauthAccountInfo()?.accountUuid ?? '',
-      session_id: getSessionId(),
+      session_id: 'redacted',
     }),
   }
 }

@@ -68,5 +68,16 @@ export function getBuiltInAgents(): AgentDefinition[] {
     agents.push(VERIFICATION_AGENT)
   }
 
+  // [MOD] Load custom agent definitions from env var
+  const customAgentsRaw = process.env.CLAUDE_CODE_CUSTOM_AGENTS
+  if (customAgentsRaw) {
+    try {
+      const customAgents = JSON.parse(customAgentsRaw) as AgentDefinition[]
+      agents.push(...customAgents)
+    } catch {
+      // ignore invalid JSON
+    }
+  }
+
   return agents
 }

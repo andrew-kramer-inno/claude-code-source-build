@@ -64,13 +64,35 @@ const FEATURE_FLAGS = [
   'MONITOR_TOOL', 'NATIVE_CLIENT_ATTESTATION', 'NATIVE_CLIPBOARD_IMAGE', 'NEW_INIT',
   'OVERFLOW_TEST_TOOL', 'PERFETTO_TRACING', 'POWERSHELL_AUTO_MODE', 'PROACTIVE',
   'PROMPT_CACHE_BREAK_DETECTION', 'QUICK_SEARCH', 'REACTIVE_COMPACT', 'REVIEW_ARTIFACT',
-  'RUN_SKILL_GENERATOR', 'SELF_HOSTED_RUNNER', 'SKILL_IMPROVEMENT',
+  'RUN_SKILL_GENERATOR', 'SELF_HOSTED_RUNNER', 'SHOT_STATS', 'SKILL_IMPROVEMENT',
   'SKIP_DETECTION_WHEN_AUTOUPDATES_DISABLED', 'SLOW_OPERATION_LOGGING', 'SSH_REMOTE',
   'STREAMLINED_OUTPUT', 'TEAMMEM', 'TEMPLATES', 'TERMINAL_PANEL',
   'TOKEN_BUDGET', 'TORCH', 'TRANSCRIPT_CLASSIFIER', 'TREE_SITTER_BASH',
   'TREE_SITTER_BASH_SHADOW', 'UDS_INBOX', 'ULTRAPLAN', 'ULTRATHINK',
   'UNATTENDED_RETRY', 'UPLOAD_USER_SETTINGS', 'VERIFICATION_AGENT', 'VOICE_MODE',
   'WEB_BROWSER_TOOL', 'WORKFLOW_SCRIPTS',
+]
+
+const GROWTHBOOK_GATES = [
+  'tengu_amber_flint', 'tengu_amber_json_tools', 'tengu_amber_prism',
+  'tengu_amber_quartz_disabled', 'tengu_amber_stoat', 'tengu_attribution_header',
+  'tengu_auto_background_agents', 'tengu_basalt_3kr', 'tengu_birch_trellis',
+  'tengu_bramble_lintel', 'tengu_bridge_repl_v2', 'tengu_bridge_system_init',
+  'tengu_ccr_bridge', 'tengu_ccr_mirror', 'tengu_chomp_inflection',
+  'tengu_chrome_auto_enable', 'tengu_cobalt_harbor', 'tengu_cobalt_lantern',
+  'tengu_cobalt_raccoon', 'tengu_collage_kaleidoscope', 'tengu_copper_bridge',
+  'tengu_copper_panda', 'tengu_coral_fern', 'tengu_destructive_command_warning',
+  'tengu_fgts', 'tengu_glacier_2xr', 'tengu_harbor', 'tengu_harbor_permissions',
+  'tengu_herring_clock', 'tengu_hive_evidence', 'tengu_immediate_model_command',
+  'tengu_jade_anvil_4', 'tengu_kairos_brief', 'tengu_lapis_finch',
+  'tengu_lodestone_enabled', 'tengu_marble_fox', 'tengu_marble_sandcastle',
+  'tengu_miraculo_the_bard', 'tengu_moth_copse', 'tengu_otk_slot_v1',
+  'tengu_passport_quail', 'tengu_pebble_leaf_prune', 'tengu_quartz_lantern',
+  'tengu_remote_backend', 'tengu_session_memory', 'tengu_slate_prism',
+  'tengu_slate_thimble', 'tengu_slim_subagent_claudemd', 'tengu_strap_foyer',
+  'tengu_surreal_dali', 'tengu_terminal_panel', 'tengu_terminal_sidebar',
+  'tengu_trace_lantern', 'tengu_turtle_carbon', 'tengu_ultraplan_model',
+  'tengu_willow_mode', 'tengu_agent_list_attach', 'tengu_cicada_nap_ms',
 ]
 
 const COORDINATOR_PROTOCOL = `
@@ -117,7 +139,7 @@ const MODS_SUMMARY = `
 ## Code-Folks Mod Summary
 
 ### Build-Time Mods
-  - 90/90 feature flags enabled (was 4)
+  - 89/89 feature flags enabled (was 4)
   - USER_TYPE = 'ant' (Anthropic internal staff mode)
   - Anti-distillation injection disabled
   - Native client attestation disabled
@@ -128,10 +150,14 @@ const MODS_SUMMARY = `
   - All analytics/telemetry always disabled
   - 1P event logging always disabled
   - BigQuery metrics always disabled
+  - Feedback survey always disabled
   - Bypass-permissions killswitch neutered
   - Auto-mode gate check neutered
   - GrowthBook env overrides work without ant gate
   - Permission mode defaults to bypassPermissions
+  - Trust dialog auto-accepted (no first-run prompt)
+  - Cost threshold dialog pre-acknowledged
+  - PII stripped from API requests (session ID, device ID, container ID)
   - Model allowlist bypassed (all models allowed)
   - Update checker skipped
   - Token budget threshold raised (90% → 98%)
@@ -141,6 +167,7 @@ const MODS_SUMMARY = `
   - Launch screen skippable on any keypress
   - Hidden commands exposed (/heapdump, /rate-limit-options)
   - /buddy companion system fully functional
+  - Custom agent definitions via CLAUDE_CODE_CUSTOM_AGENTS env var
 
 ### Environment Variables
   CLAUDE_CODE_PREPEND_SYSTEM_PROMPT — Inject before system prompt
@@ -150,6 +177,7 @@ const MODS_SUMMARY = `
   CLAUDE_CODE_ALLOW_ALL_MODELS=0 — Re-enable model allowlist
   CLAUDE_CODE_MCP_SERVERS — Auto-inject MCP servers (JSON)
   CLAUDE_CODE_CUSTOM_TOOLS — Inject custom tool definitions (JSON)
+  CLAUDE_CODE_CUSTOM_AGENTS — Inject custom agent definitions (JSON)
   ANTHROPIC_MODEL — Override default model
   ANTHROPIC_DEFAULT_OPUS_MODEL — Override opus default
   ANTHROPIC_DEFAULT_SONNET_MODEL — Override sonnet default
@@ -168,12 +196,19 @@ export const call: LocalCommandCall = async (args) => {
   if (sub === 'flags') {
     return {
       type: 'text',
-      value: `## All 90 Feature Flags (ALL ENABLED)\n\n${FEATURE_FLAGS.map((f, i) => `  ${String(i + 1).padStart(2)}. ${f}`).join('\n')}\n`,
+      value: `## All 89 Feature Flags (ALL ENABLED)\n\n${FEATURE_FLAGS.map((f, i) => `  ${String(i + 1).padStart(2)}. ${f}`).join('\n')}\n`,
     }
   }
 
   if (sub === 'coordinator') {
     return { type: 'text', value: COORDINATOR_PROTOCOL }
+  }
+
+  if (sub === 'gates' || sub === 'growthbook') {
+    return {
+      type: 'text',
+      value: `## GrowthBook Remote Gates (${GROWTHBOOK_GATES.length} known)\n\nOverride via CLAUDE_INTERNAL_FC_OVERRIDES='{gate: value}'\n\n${GROWTHBOOK_GATES.map((g, i) => `  ${String(i + 1).padStart(2)}. ${g}`).join('\n')}\n`,
+    }
   }
 
   if (sub === 'config') {
@@ -207,9 +242,10 @@ export const call: LocalCommandCall = async (args) => {
       MODS_SUMMARY,
       '\nRun with a subcommand for details:',
       '  /dump-info endpoints  — All API endpoints',
-      '  /dump-info flags      — All 90 feature flags',
+      '  /dump-info flags      — All 89 feature flags',
       '  /dump-info config     — Current runtime environment',
       '  /dump-info coordinator — Coordinator mode protocol',
+      '  /dump-info gates      — All GrowthBook remote gates',
       '  /dump-info mods       — Full mod summary',
       '  /dump-info prompt     — Use --dump-system-prompt CLI flag to dump the full system prompt',
       '',
