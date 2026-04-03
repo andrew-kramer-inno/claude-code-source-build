@@ -12,7 +12,7 @@ const versionRoot = path.resolve(__dirname, '..');
 const sourceRoot = path.join(versionRoot, 'source');
 const installedPackageJson = path.join(sourceRoot, 'package.json');
 const installedSourceMap = path.join(sourceRoot, 'cli.js.map');
-const defaultOutfile = path.join(versionRoot, 'dist', 'cli.js');
+const defaultOutfile = path.join(versionRoot, 'dist', 'folks.js');
 const workspaceRoot = path.join(versionRoot, '.cache', 'workspace');
 const markerPath = path.join(workspaceRoot, '.prepared.json');
 const overlayStampPath = path.join(workspaceRoot, '.overlay-install.json');
@@ -163,7 +163,7 @@ const tempBundlePath = `${bundlePath}.tmp`;
 const referenceVendorRoot = path.join(sourceRoot, 'runtime-vendor');
 const publicMacroValues = {
   ISSUES_EXPLAINER: 'report the issue at https://github.com/anthropics/claude-code/issues',
-  PACKAGE_URL: packageJson.name,
+  PACKAGE_URL: 'code-folks',
   README_URL: 'https://code.claude.com/docs/en/overview',
   VERSION: packageJson.version,
   FEEDBACK_CHANNEL: 'https://github.com/anthropics/claude-code/issues',
@@ -786,6 +786,20 @@ function finalizeBuild() {
   fs.renameSync(tempBundlePath, bundlePath);
   fs.chmodSync(tempOutputPath, 0o755);
   fs.renameSync(tempOutputPath, outputPath);
+
+  // Create 'folks' symlink/alias next to the output file
+  const folksPath = path.join(path.dirname(outputPath), 'folks');
+  try { fs.unlinkSync(folksPath); } catch {}
+  try {
+    fs.symlinkSync(path.basename(outputPath), folksPath);
+    console.log(`Symlinked ${folksPath} → ${path.basename(outputPath)}`);
+  } catch {
+    // Fallback: copy if symlink fails (Windows)
+    fs.copyFileSync(outputPath, folksPath);
+    fs.chmodSync(folksPath, 0o755);
+    console.log(`Copied ${folksPath}`);
+  }
+
   console.log(`Built ${outputPath}`);
 }
 
@@ -1698,9 +1712,10 @@ function readJsonIfExists(candidate) {
 
 function createBanner(version) {
   return `#!/usr/bin/env node
-// Code-Folks — Claude Code ${version} (modded build)
-// All 90 feature flags enabled | ANT mode | Telemetry killed
+// Code Folks v${version}
+// All 89 feature flags enabled | ANT mode | Telemetry killed
 // Bypass permissions killswitch disabled | GrowthBook overrides unlocked
+// Usage: folks [options] or folks --assistant
 `;
 }
 

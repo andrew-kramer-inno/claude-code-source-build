@@ -20,7 +20,7 @@ function getLocalInstallDir(): string {
   return join(getClaudeConfigHomeDir(), 'local')
 }
 export function getLocalClaudePath(): string {
-  return join(getLocalInstallDir(), 'claude')
+  return join(getLocalInstallDir(), 'folks')
 }
 
 /**
@@ -71,10 +71,10 @@ export async function ensureLocalPackageEnvironment(): Promise<boolean> {
     )
 
     // Create the wrapper script if it doesn't exist
-    const wrapperPath = join(localInstallDir, 'claude')
+    const wrapperPath = join(localInstallDir, 'folks')
     const created = await writeIfMissing(
       wrapperPath,
-      `#!/bin/sh\nexec "${localInstallDir}/node_modules/.bin/claude" "$@"`,
+      `#!/bin/sh\nexec "${localInstallDir}/node_modules/.bin/folks" "$@"`,
       0o755,
     )
     if (created) {
@@ -143,7 +143,7 @@ export async function installOrUpdateClaudePackage(
  */
 export async function localInstallationExists(): Promise<boolean> {
   try {
-    await access(join(getLocalInstallDir(), 'node_modules', '.bin', 'claude'))
+    await access(join(getLocalInstallDir(), 'node_modules', '.bin', 'folks'))
     return true
   } catch {
     return false
